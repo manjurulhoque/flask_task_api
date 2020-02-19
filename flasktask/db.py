@@ -1,26 +1,14 @@
-from google.cloud import ndb
-from google.cloud.ndb import Key
+import os
+
+from flask import jsonify
+from google.cloud import ndb, datastore
+from google.cloud.ndb.model import Key
 from google.oauth2 import service_account
-
-credentials = service_account.Credentials.from_service_account_info({})
-
-
-class Student(ndb.Model):
-    name = ndb.StringProperty(required=True)
-    phone = ndb.StringProperty(required=True)
-    email = ndb.StringProperty(required=True)
-    roll = ndb.IntegerProperty(required=True)
-    cls = ndb.StringProperty(required=True)
-    address = ndb.StringProperty(required=True)
-    created_at = ndb.DateTimeProperty(auto_now=True)
-    updated_at = ndb.DateTimeProperty(auto_now=True)
+from flasktask.models import *
+from flasktask.schemas import student_schema
 
 
-class Contact(ndb.Model):
-    name = ndb.StringProperty()
-    phone = ndb.StringProperty()
-    email = ndb.StringProperty()
-
+# credentials = service_account.Credentials.from_service_account_info({})
 
 # ancestor_key = ndb.Key("student", "work")
 
@@ -35,42 +23,84 @@ def create(**kwargs):
                           cls=kwargs['cls'],
                           address=kwargs['address'])
 
-        student.put()
-        return True
+        key = student.put()
+        print(key)
+        return student
 
 
-@ndb.transactional(retries=2)
+# def all_students():
+#     client = ndb.Client()
+#     with client.context():
+#         query = Student.query()
+#     return query
+
+
+# def create(**kwargs):
+#     student = Student(name=kwargs['name'],
+#                       phone=kwargs['phone'],
+#                       email=kwargs['email'],
+#                       roll=kwargs['roll'],
+#                       cls=kwargs['cls'],
+#                       address=kwargs['address'])
+#
+#     key = student.put()
+#     print(key)
+#     return jsonify(student_schema.dump(student).data)
+
+
 def all_students():
-    client = ndb.Client()
-    with client.context():
-        query = Student.query()
-    return query
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/home/rumi/Desktop/credentials.json"
+    # print('Credendtials from environ: {}'.format(os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')))
+    datastore_client = datastore.Client()
+    # ss = db.all_students()
+    query = datastore_client.query(kind='Student')
+    data = query.fetch()
+
+    return data
 
 
 def get_student(key):
-    return Student.query().filter(Student.key == int(key)).get()
+    client = ndb.Client()
+    with client.context():
+        student = Student.query().filter(Student.key == ndb.Key('Student', int(key))).get()
+        return student
+    # os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/home/rumi/Desktop/credentials.json"
+    # # print('Credendtials from environ: {}'.format(os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')))
+    # datastore_client = datastore.Client()
+    # query = datastore_client.query(kind='Student')
+    # # return datastore_client.query(kind='Student').add_filter(Student.key, '=', int(key)).get()
+    # # return query.add_filter('id', '=', key).get()
+    # client = ndb.Client()
+    # with client.context():
+    #     student = Student.query().filter(Student.key == Key('Student', key))
+    #     print(student)
+    #     return student
 
 
 def update(key, **kwargs):
+    client = ndb.Client()
     student = get_student(key)
-    student['name'] = kwargs['name'] if 'name' in kwargs else student.name
-    student['phone'] = kwargs['phone'] if 'phone' in kwargs else student.phone
-    student['email'] = kwargs['email'] if 'email' in kwargs else student.email
-    student['roll'] = kwargs['roll'] if 'roll' in kwargs else student.roll
-    student['cls'] = kwargs['cls'] if 'cls' in kwargs else student.cls
-    student['address'] = kwargs['address'] if 'address' in kwargs else student.address
-    student['created_at'] = kwargs['created_at'] if 'created_at' in kwargs else student.created_at
-    student['updated_at'] = kwargs['updated_at'] if 'updated_at' in kwargs else student.updated_at
+    with client.context():
+        student.name = kwargs['name'] if 'name' in kwargs else student.name
+        student.phone = kwargs['phone'] if 'phone' in kwargs else student.phone
+        student.email = kwargs['email'] if 'email' in kwargs else student.email
+        student.roll = kwargs['roll'] if 'roll' in kwargs else student.roll
+        student.cls = kwargs['cls'] if 'cls' in kwargs else student.cls
+        student.address = kwargs['address'] if 'address' in kwargs else student.address
+        # student['created_at'] = kwargs['created_at'] if 'created_at' in kwargs else student.created_at
+        # student['updated_at'] = kwargs['updated_at'] if 'updated_at' in kwargs else student.updated_at
 
-    student.put()  # updating Model
+        student.put()  # updating Model
 
-    return student
+        return student
 
 
 def delete(key):
     student = get_student(key)
-    student.key.delete()
-    return True
+    client = ndb.Client()
+    with client.context():
+        student.key.delete()
+        return True
 
 # client = ndb.Client()
 # with client.context():
