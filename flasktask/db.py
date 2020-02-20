@@ -49,7 +49,8 @@ def create(**kwargs):
 
 
 def all_students():
-    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/home/rumi/Desktop/credentials.json"
+    # os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/home/rumi/Desktop/credentials.json"
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "C:/Users/todoy/Music/django/credentials.json"
     # print('Credendtials from environ: {}'.format(os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')))
     datastore_client = datastore.Client()
     # ss = db.all_students()

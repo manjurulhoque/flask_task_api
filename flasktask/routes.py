@@ -4,7 +4,7 @@ from google.oauth2 import service_account
 
 from flasktask.schemas import *
 
-credentials = service_account.Credentials.from_service_account_file("/home/rumi/Desktop/credentials.json")
+# credentials = service_account.Credentials.from_service_account_file("/home/rumi/Desktop/credentials.json")
 
 
 @app.route("/", methods=['GET'])
