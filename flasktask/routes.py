@@ -1,3 +1,5 @@
+from flask_cors import cross_origin
+
 from flasktask import app, db
 from flask import jsonify, request
 from google.oauth2 import service_account
@@ -18,14 +20,16 @@ def index():
 # Create Student
 @app.route('/', methods=['POST'])
 @app.route('/students', methods=['POST'])
+@cross_origin()
 def create_student():
+    print(request.get_json())
     data = {
-        'name': request.form['name'],
-        'phone': request.form['phone'],
-        'email': request.form['email'],
-        'roll': int(request.form['roll']),
-        'cls': request.form['cls'],
-        'address': request.form['address'],
+        'name': request.get_json()['name'],
+        'phone': request.get_json()['phone'],
+        'email': request.get_json()['email'],
+        'roll': int(request.get_json()['roll']),
+        'cls': request.get_json()['cls'],
+        'address': request.get_json()['address'],
     }
     student = db.create(**data)
     return student_schema.jsonify(student)
@@ -44,13 +48,21 @@ def get_student(key):
 @app.route('/students/<key>', methods=['PUT'])
 def update_student(key):
     data = {
-        'name': request.form['name'],
-        'phone': request.form['phone'],
-        'email': request.form['email'],
-        'roll': int(request.form['roll']),
-        'cls': request.form['cls'],
-        'address': request.form['address'],
+        'name': request.get_json()['name'],
+        'phone': request.get_json()['phone'],
+        'email': request.get_json()['email'],
+        'roll': int(request.get_json()['roll']),
+        'cls': request.get_json()['cls'],
+        'address': request.get_json()['address'],
     }
+    # data = {
+    #     'name': request.form['name'],
+    #     'phone': request.form['phone'],
+    #     'email': request.form['email'],
+    #     'roll': int(request.form['roll']),
+    #     'cls': request.form['cls'],
+    #     'address': request.form['address'],
+    # }
     student = db.update(key, **data)
     return jsonify({'id': key, 'student': student_schema.dump(student)})
     # return student_schema.jsonify(student)

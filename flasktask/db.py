@@ -14,6 +14,7 @@ from flasktask.schemas import student_schema
 
 
 def create(**kwargs):
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/home/rumi/Desktop/credentials.json"
     client = ndb.Client()
     with client.context():
         student = Student(name=kwargs['name'],
@@ -49,8 +50,8 @@ def create(**kwargs):
 
 
 def all_students():
-    # os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/home/rumi/Desktop/credentials.json"
-    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "C:/Users/todoy/Music/django/credentials.json"
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/home/rumi/Desktop/credentials.json"
+    # os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "C:/Users/todoy/Music/django/credentials.json"
     # print('Credendtials from environ: {}'.format(os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')))
     datastore_client = datastore.Client()
     # ss = db.all_students()
